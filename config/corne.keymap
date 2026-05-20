@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+// #define HOST_OS 1  // set to 1 for Linux, default is 0 (Windows)
+#define HOST_OS 2  // set to 2 for macOS/Windows-Alt-Codes, default is 0 (Windows)
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/outputs.h>
+
+/ {
+    macros {
+    };
+    combos {
+        compatible = "zmk,combos";
+        new_combo {
+            bindings = <&trans>;
+            key-positions = <>;
+        };
+    };
+    behaviors {
+        hm: homerow_mods {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOMEROW_MODS";
+            #binding-cells = <2>;
+            tapping-term-ms = <150>;
+            quick-tap-ms = <0>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
+    };
+    // interstingly the O column buggs on usb connection and not on bluetooth
+    // rebuild
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {  // 0 — macOS
+            bindings = 
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp ESC   &kp Q     &kp W     &kp E     &kp R         &kp T     &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp LCTRL &kp A     &kp S     &lt 2 D   &lt 1 F       &kp G     &kp H     &lt 1 J   &lt 2 K   &kp L     &kp SEMI  &kp SQT
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp LSHFT &kp Z     &kp X     &kp C     &kp V         &kp B     &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LEFT_ALT
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                                &hm LCTRL TAB &hm LSHFT SPACE &hm LGUI RET     &hm RGUI LA(BSPC) &hm LSHFT BSPC   &hm LEFT_ALT ESC
+            >;
+        };
+        // TODO add Mac Umlaute with Option + u + a/o/u
+        lower_layer {
+            // Numbers have a hold behavior like F1 and a tab behavior
+            bindings = <
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &trans    &mt F1 N1 &mt F2 N2 &mt F3 N3 &mt F4 N4 &mt F5 N5     &mt F6 N6 &mt F7 N7 &mt F8 N8 &mt F9 N9 &mt F10 N0 &trans
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &trans    &kp N0    &trans    &trans    &trans    &trans        &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans    &trans
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &trans    &trans    &trans    &trans    &trans    &trans        &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                                              &trans    &kp LSHFT &trans        &trans    &trans     &trans
+            >;
+        };
+
+        raise_layer {
+            // Basically my screen modifier keys
+            // Left Focus screen. With ctrl (right) to move window to this screen
+            // on the right we have window switching middle row and resizing
+            // roght top row is desktop selection
+            bindings = <
+            // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
+                &trans    &trans        &trans        &trans        &trans        &sys_reset        &sys_reset       &kp F17       &kp F18       &kp F19       &kp F13       &trans
+            // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
+                &trans    &kp LS(LA(Q)) &kp LS(LA(W)) &kp LS(LA(E)) &kp LS(LA(R)) &kp LS(LA(SPACE)) &kp LS(LA(H)) &kp LS(LA(J)) &kp LS(LA(K)) &kp LS(LA(L)) &kp LG(SPACE) &trans
+            // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
+              &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR        &out OUT_TOG  &to 3         &to 0        &trans        &trans        &trans
+            // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
+                                                      &trans        &trans        &trans            &trans        &trans        &trans
+            >;
+        };
+
+        windows_layer {  // 3 — Windows (GUI ↔ Alt swapped)
+            bindings = 
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp ESC   &kp Q     &kp W     &kp E     &kp R         &kp T     &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp LCTRL &kp A     &kp S     &lt 2 D   &lt 1 F       &kp G     &kp H     &lt 1 J   &lt 2 K   &kp L     &kp SEMI  &kp SQT
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                &kp LSHFT &kp Z     &kp X     &kp C     &kp V         &kp B     &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LGUI
+            // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
+                                &hm LCTRL TAB &hm LSHFT SPACE &hm LALT RET     &hm RALT LG(BSPC) &hm LSHFT BSPC   &hm LGUI ESC
+            >;
+        };
+    };
+};
