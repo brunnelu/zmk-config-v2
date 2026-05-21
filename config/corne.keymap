@@ -13,14 +13,62 @@
 
 / {
     macros {
-    };
-    combos {
-        compatible = "zmk,combos";
-        new_combo {
-            bindings = <&trans>;
-            key-positions = <>;
+        uml_a: uml_a {
+            compatible = "zmk,behavior-macro";
+            label = "UML_A";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp A>;
+        };
+        uml_o: uml_o {
+            compatible = "zmk,behavior-macro";
+            label = "UML_O";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp O>;
+        };
+        uml_u: uml_u {
+            compatible = "zmk,behavior-macro";
+            label = "UML_U";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp U>;
+        };
+        uml_A: uml_A {
+            compatible = "zmk,behavior-macro";
+            label = "UML_A_CAP";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp LS(A)>;
+        };
+        uml_O: uml_O {
+            compatible = "zmk,behavior-macro";
+            label = "UML_O_CAP";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp LS(O)>;
+        };
+        uml_U: uml_U {
+            compatible = "zmk,behavior-macro";
+            label = "UML_U_CAP";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LALT>,
+                       <&macro_tap &kp U>,
+                       <&macro_release &kp LALT>,
+                       <&macro_tap &kp LS(U)>;
         };
     };
+
     behaviors {
         hm: homerow_mods {
             compatible = "zmk,behavior-hold-tap";
@@ -31,66 +79,108 @@
             flavor = "tap-preferred";
             bindings = <&kp>, <&kp>;
         };
+
+        // Mod-morphs: tap = lowercase umlaut, shift+tap = uppercase
+        mm_ae: mm_ae {
+            compatible = "zmk,behavior-mod-morph";
+            label = "MM_AE";
+            #binding-cells = <0>;
+            bindings = <&uml_a>, <&uml_A>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+        mm_oe: mm_oe {
+            compatible = "zmk,behavior-mod-morph";
+            label = "MM_OE";
+            #binding-cells = <0>;
+            bindings = <&uml_o>, <&uml_O>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+        mm_ue: mm_ue {
+            compatible = "zmk,behavior-mod-morph";
+            label = "MM_UE";
+            #binding-cells = <0>;
+            bindings = <&uml_u>, <&uml_U>;
+            mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
     };
-    // interstingly the O column buggs on usb connection and not on bluetooth
-    // rebuild
+
+    combos {
+        compatible = "zmk,combos";
+        new_combo {
+            bindings = <&trans>;
+            key-positions = <>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {  // 0 — macOS
             bindings = <
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &kp ESC   &kp Q     &kp W     &kp E     &kp R         &kp T     &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
+                &kp ESC   &kp Q     &kp W     &kp E     &kp R     &kp T         &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &to 3     &kp A     &kp S     &lt 2 D   &lt 1 F       &kp G     &kp H     &lt 1 J   &lt 2 K   &kp L     &kp SEMI  &kp SQT
+                &to 4     &kp A     &lt 3 S   &lt 2 D   &lt 1 F   &kp G         &kp H     &lt 1 J   &lt 2 K   &lt 3 L   &kp SEMI  &kp SQT
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &kp LSHFT &kp Z     &kp X     &kp C     &kp V         &kp B     &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LEFT_ALT
+                &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B         &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LEFT_ALT
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                                &hm LCTRL TAB &hm LSHFT SPACE &hm LGUI RET     &hm RGUI LA(BSPC) &hm LSHFT BSPC   &hm LEFT_ALT ESC
+                                &hm LCTRL TAB &hm LSHFT SPACE &hm LGUI RET     &hm RGUI LA(BSPC) &hm LSHFT BSPC &hm LEFT_ALT ESC
             >;
         };
-        // TODO add Mac Umlaute with Option + u + a/o/u
-        lower_layer {
-            // Numbers have a hold behavior like F1 and a tab behavior
+
+        lower_layer {  // 1 — Numbers / Arrows
             bindings = <
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
                 &trans    &mt F1 N1 &mt F2 N2 &mt F3 N3 &mt F4 N4 &mt F5 N5     &mt F6 N6 &mt F7 N7 &mt F8 N8 &mt F9 N9 &mt F10 N0 &trans
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &trans    &kp N0    &trans    &trans    &trans    &trans        &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans    &trans
+                &trans    &kp N0    &trans    &trans    &trans    &trans          &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans    &trans
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &trans    &trans    &trans    &trans    &trans    &trans        &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+                &trans    &trans    &trans    &trans    &trans    &trans          &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                                              &trans    &kp LSHFT &trans        &trans    &trans     &trans
+                                              &trans    &kp LSHFT &trans          &trans    &trans    &trans
             >;
         };
 
-        raise_layer {
-            // Basically my screen modifier keys
-            // Left Focus screen. With ctrl (right) to move window to this screen
-            // on the right we have window switching middle row and resizing
-            // roght top row is desktop selection
+        raise_layer {  // 2 — Screen / WM
             bindings = <
             // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
-                &trans    &trans        &trans        &trans        &trans        &sys_reset        &sys_reset       &kp F17       &kp F18       &kp F19       &kp F13       &trans
+                &trans    &trans        &trans        &trans        &trans        &sys_reset          &sys_reset    &kp F17       &kp F18       &kp F19       &kp F13       &trans
             // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
                 &trans    &kp LS(LA(Q)) &kp LS(LA(W)) &kp LS(LA(E)) &kp LS(LA(R)) &kp LS(LA(SPACE)) &kp LS(LA(H)) &kp LS(LA(J)) &kp LS(LA(K)) &kp LS(LA(L)) &kp LG(SPACE) &trans
             // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
-              &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR        &out OUT_TOG  &to 3         &to 0        &trans        &trans        &trans
+              &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR        &out OUT_TOG  &to 4         &to 0         &trans        &trans        &trans
             // ├─────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────├─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
-                                                      &trans        &trans        &trans            &trans        &trans        &trans
+                                                      &trans        &trans        &trans              &trans        &trans        &trans
             >;
         };
 
-        windows_layer {  // 3 — Windows (GUI ↔ Alt swapped)
+        numpad_layer {  // 3 — Numpad + Umlauts (hold S or L)
+            bindings = <
+            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+            //                7        8        9        +                                  7        8        9        +
+                &trans    &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS  &trans      &trans    &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS  &kp BSPC
+            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+            //  HOME      4        [S=hold]   5        6        -              *        4        5        6        -        HOME
+            //                               ö on ;        ä on '                              ü on [
+                &kp HOME  &kp KP_N4 &trans    &kp KP_N5 &kp KP_N6 &kp KP_MINUS  &kp KP_ASTERISK &kp KP_N4 &kp KP_N5 &kp KP_N6 &kp KP_MINUS &kp HOME
+            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+            //                1        2        3        /        .              .        1        2        3        /
+                &trans    &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH &kp KP_DOT  &kp KP_DOT &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH &trans
+            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+                                              &kp KP_N0 &kp KP_N0 &kp KP_ENTER   &kp KP_ENTER &kp KP_N0 &kp KP_N0
+            >;
+        };
+
+        windows_layer {  // 4 — Windows (GUI ↔ Alt swapped)
             bindings = <
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &kp ESC   &kp Q     &kp W     &kp E     &kp R         &kp T     &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
+                &kp ESC   &kp Q     &kp W     &kp E     &kp R     &kp T         &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &to 0     &kp A     &kp S     &lt 2 D   &lt 1 F       &kp G     &kp H     &lt 1 J   &lt 2 K   &kp L     &kp SEMI  &kp SQT
+                &to 0     &kp A     &lt 3 S   &lt 2 D   &lt 1 F   &kp G         &kp H     &lt 1 J   &lt 2 K   &lt 3 L   &kp SEMI  &kp SQT
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                &kp LSHFT &kp Z     &kp X     &kp C     &kp V         &kp B     &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LGUI
+                &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B         &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LGUI
             // ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────├─────────┼─────────┼─────────┼─────────┼─────────┤
-                                &hm LCTRL TAB &hm LSHFT SPACE &hm LALT RET     &hm RALT LC(BSPC) &hm LSHFT BSPC   &hm LGUI ESC
+                                &hm LCTRL TAB &hm LSHFT SPACE &hm LALT RET     &hm RALT LC(BSPC) &hm LSHFT BSPC &hm LGUI ESC
             >;
         };
     };
