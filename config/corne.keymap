@@ -1,9 +1,10 @@
-/*
+    
+    /*
 * Copyright (c) 2020 The ZMK Contributors
 *
 * SPDX-License-Identifier: MIT
 */
-#define HOST_OS 2  // set to 2 for macOS/Windows-Alt-Codes, default is 0 (Windows)
+#define HOST_OS 2  // macOS/Windows-Alt-Codes mode
 
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
@@ -12,6 +13,8 @@
 
 / {
    macros {
+       // macOS umlaut input via Option+U dead key then vowel.
+       // Shift variant handled by mod-morph in behaviors section.
        uml_a: uml_a {
            compatible = "zmk,behavior-macro";
            #binding-cells = <0>;
@@ -63,6 +66,8 @@
    };
 
    behaviors {
+       // Tap-preferred hold-tap for homerow layer triggers.
+       // 150ms tapping term keeps it responsive without accidental holds.
        hm: homerow_mods {
            compatible = "zmk,behavior-hold-tap";
            #binding-cells = <2>;
@@ -71,6 +76,9 @@
            flavor = "tap-preferred";
            bindings = <&kp>, <&kp>;
        };
+
+       // Umlauts on Swiss keyboard positions: ' = ä, ; = ö, [ = ü.
+       // Tap = lowercase, Shift+tap = uppercase via mod-morph.
        mm_ae: mm_ae {
            compatible = "zmk,behavior-mod-morph";
            #binding-cells = <0>;
@@ -93,9 +101,13 @@
 
    combos {
        compatible = "zmk,combos";
-       new_combo {
-           bindings = <&trans>;
-           key-positions = <>;
+       // Both inner GUI thumbs simultaneously = Globe/Fn key.
+       // Used for iPad Full Keyboard Access chords (Globe+key).
+       // Tab is sticky on left pinky for Tab+key FKA chords.
+       combo_fn {
+           bindings = <&kp GLOBE>;
+           key-positions = <38 39>;
+           timeout-ms = <50>;
        };
    };
 
@@ -103,11 +115,15 @@
        compatible = "zmk,keymap";
 
        default_layer {  // 0 — macOS
+           // Left pinky = sticky Tab for iPad FKA chords (Tab+H, Tab+M etc.)
+           // without needing a dedicated FKA layer.
+           // Layer switches: S/L = numpad (4), D/K = raise (3), F/J = lower (2).
+           // OS switch moved to lower layer row 3.
            bindings = <
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
                &kp ESC   &kp Q     &kp W     &kp E     &kp R     &kp T         &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-               &to 4     &kp A     &lt 3 S   &lt 2 D   &lt 1 F   &kp G         &kp H     &lt 1 J   &lt 2 K   &lt 3 L   &kp SEMI  &kp SQT
+               &sk TAB   &kp A     &lt 4 S   &lt 3 D   &lt 2 F   &kp G         &kp H     &lt 2 J   &lt 3 K   &lt 4 L   &kp SEMI  &kp SQT
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
                &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B         &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LEFT_ALT
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
@@ -115,58 +131,72 @@
            >;
        };
 
-       lower_layer {  // 1 — Numbers / Arrows
+       windows_layer {  // 1 — Windows
+           // GUI and Alt swapped vs macOS to match Windows conventions.
+           // Word-delete uses LC(BSPC) instead of LA(BSPC).
+           // Right pinky bottom = Win key instead of LEFT_ALT.
+           bindings = <
+           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+               &kp ESC   &kp Q     &kp W     &kp E     &kp R     &kp T         &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
+           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+               &sk TAB   &kp A     &lt 4 S   &lt 3 D   &lt 2 F   &kp G         &kp H     &lt 2 J   &lt 3 K   &lt 4 L   &kp SEMI  &kp SQT
+           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+               &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B         &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LGUI
+           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+                               &hm LCTRL TAB &hm LSHFT SPACE &hm LALT RET     &hm RALT LC(BSPC) &hm LSHFT BSPC &hm LGUI ESC
+           >;
+       };
+
+       lower_layer {  // 2 — Numbers / Arrows / OS switch
+           // Top row: numbers with hold-for-Fkey (e.g. hold 1 = F1).
+           // Middle row: arrow keys on right hand HJKL-style.
+           // Bottom row left: OS switch (A=Apple/macOS, S=Switch to Windows).
+           // Bottom row right: symbols matching standard keyboard positions.
            bindings = <
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
                &trans    &mt F1 N1 &mt F2 N2 &mt F3 N3 &mt F4 N4 &mt F5 N5     &mt F6 N6 &mt F7 N7 &mt F8 N8 &mt F9 N9 &mt F10 N0 &trans
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
                &trans    &kp N0    &trans    &trans    &trans    &trans          &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans     &trans
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
-               &trans    &trans    &trans    &trans    &trans    &trans          &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH   &kp GRAVE
+               &trans    &to 0     &to 1     &trans    &trans    &trans          &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH   &kp GRAVE
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
                                              &trans    &kp LSHFT &trans          &trans    &trans    &trans
            >;
        };
 
-       raise_layer {  // 2 — Screen / WM
+       raise_layer {  // 3 — Screen / Window Manager
+           // Left home row: window manager shortcuts (Shift+Alt+key).
+           // Right top row: F-keys for display/mission control triggers.
+           // Left bottom row: Bluetooth device selection and clear.
+           // Right bottom: output toggle (USB/BT).
            bindings = <
            // ├─────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
                &trans    &trans        &trans        &trans        &trans        &sys_reset          &sys_reset    &kp F17       &kp F18       &kp F19       &kp F13       &trans
            // ├─────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
                &trans    &kp LS(LA(Q)) &kp LS(LA(W)) &kp LS(LA(E)) &kp LS(LA(R)) &kp LS(LA(SPACE)) &kp LS(LA(H)) &kp LS(LA(J)) &kp LS(LA(K)) &kp LS(LA(L)) &kp LG(SPACE) &trans
            // ├─────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
-             &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR        &out OUT_TOG  &to 4         &to 0         &trans        &trans        &trans
+             &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &bt BT_CLR        &out OUT_TOG  &trans        &trans        &trans        &trans        &trans
            // ├─────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────┤
                                                      &trans        &trans        &trans              &trans        &trans        &trans
            >;
        };
 
-       numpad_layer {  // 3 — Numpad (hold S or L) + Umlauts Swiss-style (hold S, right hand)
+       numpad_layer {  // 4 — Numpad + Swiss Umlauts
+           // Activated by holding S (left hand) or L (right hand).
+           // The hold key itself is dead on its own side but reachable
+           // by the opposite hand — so S position outputs 5 when holding L,
+           // and L position outputs 5 when holding S.
+           // Umlauts on right hand, Swiss keyboard positions:
+           //   '  = ä/Ä,  ;  = ö/Ö,  [  = ü/Ü  (shift via mod-morph)
            bindings = <
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-           //                7        8        9        +                                  7        8        9        +        ü (=[)
-               &trans    &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS  &trans      &trans    &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS  &mm_ue
+               &trans    &trans    &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS   &kp KP_PLUS &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_PLUS &mm_ue
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-           //  HOME      4        [hold]     5        6        -              *        4        5        6        ö (=;)   ä (=')
-               &kp HOME  &kp KP_N4 &trans    &kp KP_N5 &kp KP_N6 &kp KP_MINUS  &kp KP_ASTERISK &kp KP_N4 &kp KP_N5 &kp KP_N6 &mm_oe   &mm_ae
+               &kp HOME  &trans    &kp KP_N4 &kp KP_N5 &kp KP_N6 &kp KP_MINUS  &kp KP_ASTERISK &kp KP_N4 &kp KP_N5 &kp KP_N6 &mm_oe &mm_ae
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-           //                1        2        3        /        .              .        1        2        3        /
-               &trans    &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH &kp KP_DOT  &kp KP_DOT &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH &trans
+               &trans    &trans    &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH  &kp KP_DOT &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_SLASH &trans
            // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-                                             &kp KP_N0 &kp KP_N0 &kp KP_ENTER   &kp KP_ENTER &kp KP_N0 &kp KP_N0
-           >;
-       };
-
-       windows_layer {  // 4 — Windows (GUI ↔ Alt swapped)
-           bindings = <
-           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-               &kp ESC   &kp Q     &kp W     &kp E     &kp R     &kp T         &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSPC
-           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-               &to 0     &kp A     &lt 3 S   &lt 2 D   &lt 1 F   &kp G         &kp H     &lt 1 J   &lt 2 K   &lt 3 L   &kp SEMI  &kp SQT
-           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-               &kp LSHFT &kp Z     &kp X     &kp C     &kp V     &kp B         &kp N     &kp M     &kp COMMA &kp DOT   &kp FSLH  &kp LGUI
-           // ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤   ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-                               &hm LCTRL TAB &hm LSHFT SPACE &hm LALT RET     &hm RALT LC(BSPC) &hm LSHFT BSPC &hm LGUI ESC
+                                             &trans    &trans    &kp KP_PLUS    &kp KP_ENTER &kp KP_N0 &kp KP_DOT
            >;
        };
    };
